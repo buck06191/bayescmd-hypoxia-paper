@@ -1,8 +1,7 @@
 """Process results from 230218."""
 import os
 import argparse
-import sys
-sys.path.append('..')
+from pathlib import Path
 from bayescmd.results_handling import kde_plot
 from bayescmd.results_handling import scatter_dist_plot
 from bayescmd.results_handling import data_import
@@ -11,12 +10,11 @@ from bayescmd.results_handling import histogram_plot
 from bayescmd.results_handling import data_merge_by_batch
 from bayescmd.abc import import_actual_data
 from bayescmd.abc import priors_creator
-from bayescmd.util import findBaseDir
 import json
 import matplotlib.pyplot as plt
 from distutils import dir_util
 
-BASEDIR = os.path.abspath(findBaseDir('BayesCMD'))
+
 
 ap = argparse.ArgumentParser('Choose results to process:')
 ap.add_argument(
@@ -31,17 +29,23 @@ ap.add_argument(
 
 args = ap.parse_args()
 
+## If parameter files haven't yet been merged, uncomment the next line
+
 # pfile = data_merge_by_batch(args.parent_dir)
+
+## If parameter files haven't yet been merged, comment the next line
+
 pfile = os.path.abspath(os.path.join(args.parent_dir, 'reduced_sorted_parameters.csv'))
 
 with open(args.conf, 'r') as conf_f:
     conf = json.load(conf_f)
-# params = priors_creator(conf['priors']['defaults'],
-#                         conf['priors']['variation'])
+
 params = conf['priors']
 
-input_path = os.path.join(BASEDIR,
-                          'PLOS_paper',
+
+current_file = Path(os.path.abspath(__file__))
+
+input_path = os.path.join(current_file.parents[2],
                           'data',
                           'cleaned_hypoxia_experimental.csv')
 

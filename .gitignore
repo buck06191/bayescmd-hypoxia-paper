@@ -94,6 +94,10 @@ venv.bak/
 .spyderproject
 .spyproject
 
+
+# VS Code project settings
+.vscode/
+
 # Rope project settings
 .ropeproject
 
@@ -110,3 +114,4 @@ results.txt
 *.input
 *.out
 */.ipynb_checkpoints/*
+

@@ -1,5 +1,7 @@
-""" Generate various steady state data sets."""
-from run_steadystate import RunSteadyState
+
+from io import BytesIO
+from PIL import Image
+from bayescmd.steady_state import RunSteadyState
 import os
 import distutils
 import json
@@ -8,8 +10,10 @@ import seaborn as sns
 import numpy as np
 from datetime import datetime
 import matplotlib as mpl
-from PIL import Image
-from io import BytesIO
+
+
+""" Generate various steady state data sets."""
+
 mpl.rc('figure', dpi=400)
 
 
@@ -23,18 +27,19 @@ title_dict = {"P_a": "Arterial Blood Pressure (mmHg)",
               "CCO": "CCO ($\mu M$)"}
 outputs = ["CMRO2", "CCO", "HbT", "CBF"]
 r_ts = {"$r_t$: 0.018": 0.018,
-"$r_t$: 0.016": 0.016, "$r_t$: 0.013":0.013, "$r_t$: 0.010": 0.01}
+        "$r_t$: 0.016": 0.016, "$r_t$: 0.013": 0.013, "$r_t$: 0.010": 0.01}
 
 cbar = sns.color_palette("muted", n_colors=4)
 direction = "both"
 
-def TIFF_exporter(fig, fname, fig_dir = '.'):
+
+def TIFF_exporter(fig, fname, fig_dir='.'):
     """
     Parameters
     ----------
     fig: matplotlib figure
     """
-    
+
     # save figure
     # (1) save the image in memory in PNG format
     png1 = BytesIO()
@@ -44,7 +49,7 @@ def TIFF_exporter(fig, fname, fig_dir = '.'):
     png2 = Image.open(png1)
 
     # (3) save as TIFF
-    png2.save(os.path.join(fig_dir,'{}.tiff'.format(fname)))
+    png2.save(os.path.join(fig_dir, '{}.tiff'.format(fname)))
     png1.close()
     return True
 
@@ -101,7 +106,7 @@ for o in outputs:
         data = {}
 
         print("\tRunning steady state - {}".format(i))
-        for k, v  in r_ts.items():
+        for k, v in r_ts.items():
             workdir = os.path.join(base_work_dir, k)
             distutils.dir_util.mkpath(workdir)
             print("\t\tRunning r_t {}".format(k))
@@ -157,4 +162,5 @@ for o in outputs:
         # fig.savefig(os.path.join(base_work_dir, "{}_{}.png".format(i,
         #                                                            direction)),
         #             bbox_inches="tight")
-        TIFF_exporter(fig, "{}_{}".format(i, direction), fig_dir=base_work_dir)
+        #TIFF_exporter(fig, "{}_{}".format(i, direction), fig_dir=base_work_dir)
+        fig.show()

@@ -1,8 +1,8 @@
+from distutils import dir_util
 """Process impaired hypoxia results."""
 import os
 import argparse
-import sys
-sys.path.append('..')
+from pathlib import Path
 from bayescmd.results_handling import kde_plot
 from bayescmd.results_handling import scatter_dist_plot
 from bayescmd.results_handling import data_import
@@ -18,14 +18,15 @@ import matplotlib as mpl
 from PIL import Image
 from io import BytesIO
 mpl.rc('figure', dpi=400)
-from distutils import dir_util
-def TIFF_exporter(fig, fname, fig_dir = '.', extra_artists=()):
+
+
+def TIFF_exporter(fig, fname, fig_dir='.', extra_artists=()):
     """
     Parameters
     ----------
     fig: matplotlib figure
     """
-    
+
     # save figure
     # (1) save the image in memory in PNG format
     png1 = BytesIO()
@@ -35,9 +36,10 @@ def TIFF_exporter(fig, fname, fig_dir = '.', extra_artists=()):
     png2 = Image.open(png1)
 
     # (3) save as TIFF
-    png2.save(os.path.join(fig_dir,'{}.tiff'.format(fname)))
+    png2.save(os.path.join(fig_dir, '{}.tiff'.format(fname)))
     png1.close()
     return True
+
 
 BASEDIR = os.path.abspath(findBaseDir('BayesCMD'))
 
@@ -54,8 +56,13 @@ ap.add_argument(
 
 args = ap.parse_args()
 
+# If parameter files haven't yet been merged, uncomment the next line
+
 # pfile = data_merge_by_batch(args.parent_dir)
-pfile = os.path.abspath(os.path.join(args.parent_dir, 'reduced_sorted_parameters.csv'))
+
+# If parameter files haven't yet been merged, comment the next line
+pfile = os.path.abspath(os.path.join(
+    args.parent_dir, 'reduced_sorted_parameters.csv'))
 
 with open(args.conf, 'r') as conf_f:
     conf = json.load(conf_f)
@@ -63,7 +70,9 @@ with open(args.conf, 'r') as conf_f:
 #                         conf['priors']['variation'])
 params = conf['priors']
 
-input_path = os.path.join(BASEDIR,
+current_file = Path(os.path.abspath(__file__))
+
+input_path = os.path.join(current_file.parents[2],
                           'PLOS_paper',
                           'data',
                           'impaired_hypoxia_output.csv')
@@ -86,15 +95,15 @@ config = {
 results = data_import(pfile)
 
 true_medians = {'P_v': 4.0,
- 'R_auto': 1.5,
- 'Xtot': 9.1,
- 'mu_max': 1.0,
- 'n_h': 2.5,
- 'n_m': 1.83,
- 'phi': 0.036000000000000004,
- 'r_m': 0.027000000000000003,
- 'r_t': 0.013,
- 'sigma_coll': 62.79}
+                'R_auto': 1.5,
+                'Xtot': 9.1,
+                'mu_max': 1.0,
+                'n_h': 2.5,
+                'n_m': 1.83,
+                'phi': 0.036000000000000004,
+                'r_m': 0.027000000000000003,
+                'r_t': 0.013,
+                'sigma_coll': 62.79}
 
 # print(results.columns)
 
@@ -145,11 +154,11 @@ for d in distances:
     # for t in config["targets"]:
     #     config["offset"]["{}_offset".format(t)] = d0[t][0]
     fig, ax = plot_repeated_outputs(sorted_results, n_repeats=25, limit=lim,
-                                distance=d, **config)
+                                    distance=d, **config)
     for i, label in enumerate(["{} (%)", "$\Delta${} ($\mu M$)", "$\Delta${} ($\mu M$)", "$\Delta${} ($\mu M$)"]):
         ax[i].set_ylabel(label.format(ax[i].get_ylabel()))
-    
-    for i, y_lim in enumerate([(35,80), (-1.1, 0.1), (-2, 30), (-25, 2)]):
+
+    for i, y_lim in enumerate([(35, 80), (-1.1, 0.1), (-2, 30), (-25, 2)]):
         ax[i].set_ylim(y_lim)
 
     fig.set_size_inches(18.5, 12.5)
@@ -157,10 +166,9 @@ for d in distances:
     #     os.path.join(figPath, 'PLOS_impaired_{}_{}_TS.png'
     #                     .format(str(lim).replace('.', '_'), d)),
     #     dpi=100)
-    TIFF_exporter(fig, 'PLOS_impaired_{}_{}_TS'.format(str(lim).replace('.', '_'), d), fig_dir=figPath)
+    TIFF_exporter(fig, 'PLOS_impaired_{}_{}_TS'.format(
+        str(lim).replace('.', '_'), d), fig_dir=figPath)
     plt.close('all')
 
 # TODO: Fix issue with plot formatting, cutting off axes etc
 # TODO: Fix issue with time series cutting short.
-
-
